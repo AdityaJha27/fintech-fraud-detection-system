@@ -1,0 +1,29 @@
+# Environment Variables — NEVER push
+backend/.env
+
+# Python cache
+backend/__pycache__/
+backend/ml/__pycache__/
+**/__pycache__/
+*.pyc
+*.pyo
+
+# Large dataset — 481 MB — too large for GitHub
+backend/paysim_data.csv
+
+# Node modules
+node_modules/
+
+# Build folder
+dist/
+
+# VS Code settings
+.vscode/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*

@@ -1,0 +1,14 @@
+@import "tailwindcss";
+
+body {
+  margin: 0;
+  background-color: #020617;
+  color: white;
+  font-family: sans-serif;
+}
+
+/* Smooth transitions globally */
+* {
+  transition-duration: 200ms;
+  transition-timing-function: ease;
+}
