@@ -2,9 +2,10 @@ import joblib
 import json
 import numpy as np
 import os
+import pandas as pd  
 from datetime import datetime
 
-# Load models
+# Load models (Ye part same rahega)
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 rf_model  = joblib.load(os.path.join(BASE_DIR, 'fintech_rf_model.pkl'))
@@ -15,29 +16,28 @@ scaler    = joblib.load(os.path.join(BASE_DIR, 'fintech_scaler.pkl'))
 with open(os.path.join(BASE_DIR, 'fintech_features.json'), 'r') as f:
     FEATURES = json.load(f)
 
-print("Models loaded successfully!")
-print(f"Features: {FEATURES}")
-
 def predict_transaction(data_input: dict) -> dict:
     processed_data = data_input.copy()
+    
+    # ⚡ Step 1: Label Encoding
     processed_data['type'] = int(le.transform([processed_data['type']])[0])
 
+    # ⚡ Step 2: Feature Engineering
     processed_data['hour'] = datetime.now().hour 
-    
-    # Amount to Balance Ratio: Calculation
     processed_data['amount_to_balance_ratio'] = processed_data['amount'] / (processed_data['oldbalanceOrg'] + 1)
-    
-    # Is Overdraft: Check (1 if amount > balance else 0)
     processed_data['is_overdraft'] = 1 if processed_data['amount'] > processed_data['oldbalanceOrg'] else 0
 
+    # ⚡ Step 3: Prepare DataFrame
+    
     try:
-        row = [processed_data[f] for f in FEATURES]
+        row_values = [processed_data[f] for f in FEATURES]
+        row_df = pd.DataFrame([row_values], columns=FEATURES) 
     except KeyError as e:
-        print(f" Missing feature in data: {e}")
+        print(f"Missing feature in data: {e}")
         raise ValueError(f"Feature mismatch: {e} is required by the model.")
 
-    # ⚡ Step 4: Scale features (Using the pre-loaded scaler)
-    row_scaled = scaler.transform([row])
+    # ⚡ Step 4: Scale features (Using DataFrame)
+    row_scaled = scaler.transform(row_df) 
 
     # ⚡ Step 5: Generate Predictions & Probabilities
     rf_prob  = float(rf_model.predict_proba(row_scaled)[0][1])
