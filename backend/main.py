@@ -56,10 +56,10 @@ try:
     fraud_amount_avg = amt_stats[2]
 
     conn.close()
-    print(f"✅ DB Loaded: {total_tx:,} transactions | {real_fraud:,} fraud cases")
+    print(f" DB Loaded: {total_tx:,} transactions | {real_fraud:,} fraud cases")
 
 except Exception as e:
-    print(f"❌ DB Error: {e}")
+    print(f" DB Error: {e}")
     sys.exit(1)
 
 
@@ -67,7 +67,7 @@ class TransactionInput(BaseModel):
     type: str
     amount: float
     oldbalanceOrg: float
-    oldbalanceDest: Optional[float] = 0.0
+    oldbalanceDest: Optional[float] = 0.0 
 
 
 @app.get("/")
@@ -176,20 +176,24 @@ async def investigate(account_id: str):
         conn.close()
 
         data_row = row.iloc[0]
+        
         data = {
-            "type": data_row['type'],
-            "amount": float(data_row['amount']),
-            "oldbalanceOrg": float(data_row['oldbalanceOrg']),
-            "oldbalanceDest": float(data_row['oldbalanceDest']),
+            "type": str(data_row['type']),
+            "amount": float(data_row['amount']) if data_row['amount'] is not None else 0.0,
+            "oldbalanceOrg": float(data_row['oldbalanceOrg']) if data_row['oldbalanceOrg'] is not None else 0.0,
+            "oldbalanceDest": float(data_row['oldbalanceDest']) if data_row['oldbalanceDest'] is not None else 0.0,
         }
+        
         result = predict_transaction(data)
-        amount = float(data_row['amount'])
-        is_overdraft = amount > float(data_row['oldbalanceOrg'])
-        ratio = amount / (float(data_row['oldbalanceOrg']) + 1)
+        amount = float(data['amount'])
+        orig_bal = float(data['oldbalanceOrg'])
+        
+        is_overdraft = amount > orig_bal
+        ratio = amount / (orig_bal + 1)
 
         return {
             "account_id": account_id,
-            "transaction_type": data_row['type'],
+            "transaction_type": data['type'],
             "amount": f"₹{amount:,.2f}",
             "ground_truth": "Confirmed Fraud" if data_row['isFraud'] else "Legitimate",
             "risk_level": result['decision'].replace('_', ' '),
@@ -203,8 +207,8 @@ async def investigate(account_id: str):
             }
         }
     except Exception as e:
+        print(f" Investigation Error: {e}") 
         raise HTTPException(status_code=500, detail=str(e))
-
 
 @app.get("/api/model-performance")
 async def model_performance():
