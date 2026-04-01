@@ -18,26 +18,28 @@ with open(os.path.join(BASE_DIR, 'fintech_features.json'), 'r') as f:
 print("Models loaded successfully!")
 print(f"Features: {FEATURES}")
 
-def predict_transaction(data: dict) -> dict:
+def predict_transaction(data_input: dict) -> dict:
+    processed_data = data_input.copy()
+    processed_data['type'] = int(le.transform([processed_data['type']])[0])
 
-    # 1. Encode transaction type
-    data['type'] = int(le.transform([data['type']])[0])
+    processed_data['hour'] = datetime.now().hour 
+    
+    # Amount to Balance Ratio: Calculation
+    processed_data['amount_to_balance_ratio'] = processed_data['amount'] / (processed_data['oldbalanceOrg'] + 1)
+    
+    # Is Overdraft: Check (1 if amount > balance else 0)
+    processed_data['is_overdraft'] = 1 if processed_data['amount'] > processed_data['oldbalanceOrg'] else 0
 
-    # 2. Engineer features — same as training
-    # hour — real current time (not step-based)
-    # Real bank system mein transaction abhi ho raha hai
-    data['hour'] = datetime.now().hour  # 0-23 real time
+    try:
+        row = [processed_data[f] for f in FEATURES]
+    except KeyError as e:
+        print(f" Missing feature in data: {e}")
+        raise ValueError(f"Feature mismatch: {e} is required by the model.")
 
-    data['amount_to_balance_ratio'] = data['amount'] / (data['oldbalanceOrg'] + 1)
-    data['is_overdraft'] = 1 if data['amount'] > data['oldbalanceOrg'] else 0
-
-    # 3. Prepare feature vector — same order as training
-    row = [data[f] for f in FEATURES]
-
-    # 4. Scale — same scaler as training
+    # ⚡ Step 4: Scale features (Using the pre-loaded scaler)
     row_scaled = scaler.transform([row])
 
-    # 5. Predictions
+    # ⚡ Step 5: Generate Predictions & Probabilities
     rf_prob  = float(rf_model.predict_proba(row_scaled)[0][1])
     xgb_prob = float(xgb_model.predict_proba(row_scaled)[0][1])
     ensemble_prob = (rf_prob + xgb_prob) / 2
@@ -45,24 +47,21 @@ def predict_transaction(data: dict) -> dict:
     rf_pred  = int(rf_model.predict(row_scaled)[0])
     xgb_pred = int(xgb_model.predict(row_scaled)[0])
 
-    # 6. Ensemble decision
+    # ⚡ Step 6: Ensemble Decision Logic
     if rf_pred == 1 and xgb_pred == 1:
-        decision   = "CONFIRMED_FRAUD"
-        risk_level = "CRITICAL"
+        decision, risk_level = "CONFIRMED_FRAUD", "CRITICAL"
     elif rf_pred == 0 and xgb_pred == 0:
-        decision   = "LEGITIMATE"
-        risk_level = "LOW"
+        decision, risk_level = "LEGITIMATE", "LOW"
     else:
-        decision   = "SUSPICIOUS"
-        risk_level = "HIGH"
+        decision, risk_level = "SUSPICIOUS", "HIGH"
 
     return {
-        "rf_probability":       round(rf_prob * 100, 2),
-        "xgb_probability":      round(xgb_prob * 100, 2),
+        "rf_probability": round(rf_prob * 100, 2),
+        "xgb_probability": round(xgb_prob * 100, 2),
         "ensemble_probability": round(ensemble_prob * 100, 2),
-        "rf_prediction":        rf_pred,
-        "xgb_prediction":       xgb_pred,
-        "decision":             decision,
-        "risk_level":           risk_level,
-        "models_agree":         rf_pred == xgb_pred
+        "rf_prediction": rf_pred,
+        "xgb_prediction": xgb_pred,
+        "decision": decision,
+        "risk_level": risk_level,
+        "models_agree": rf_pred == xgb_pred
     }

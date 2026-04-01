@@ -5,6 +5,7 @@ import pandas as pd
 import sqlite3
 import os
 import sys
+from typing import Optional
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 from ml.predictor import predict_transaction
@@ -14,6 +15,7 @@ app = FastAPI(title="FinTech Fraud Detection API")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -65,7 +67,7 @@ class TransactionInput(BaseModel):
     type: str
     amount: float
     oldbalanceOrg: float
-    oldbalanceDest: float
+    oldbalanceDest: Optional[float] = 0.0
 
 
 @app.get("/")
@@ -98,53 +100,64 @@ async def predict(transaction: TransactionInput):
 
 @app.get("/api/fraud-clusters")
 async def get_clusters():
-    conn = get_db_connection()
-    sample_fraud = pd.read_sql_query(
-        "SELECT * FROM transactions WHERE isFraud = 1 ORDER BY RANDOM() LIMIT 8",
-        conn
-    )
-    conn.close()
+    try:
+        conn = get_db_connection()
+        sample_fraud = pd.read_sql_query(
+            "SELECT * FROM transactions WHERE isFraud = 1 ORDER BY RANDOM() LIMIT 8",
+            conn
+        )
+        conn.close()
 
-    nodes, links, seen = [], [], set()
-    for _, row in sample_fraud.iterrows():
-        data = {
-            "type": row['type'],
-            "amount": float(row['amount']),
-            "oldbalanceOrg": float(row['oldbalanceOrg']),
-            "oldbalanceDest": float(row['oldbalanceDest']),
-        }
-        result = predict_transaction(data)
-        rf_prob = result['rf_probability']
-        xgb_prob = result['xgb_probability']
+        nodes, links, seen = [], [], set()
+        for _, row in sample_fraud.iterrows():
+            # Data ko safely float mein convert kar rahe hain
+            data = {
+                "type": str(row['type']),
+                "amount": float(row['amount']),
+                "oldbalanceOrg": float(row['oldbalanceOrg']),
+                "oldbalanceDest": float(row['oldbalanceDest']) if row.get('oldbalanceDest') else 0.0,
+            }
+            
+            try:
+                result = predict_transaction(data)
+                rf_prob = result.get('rf_probability', 0)
+                xgb_prob = result.get('xgb_probability', 0)
+            except:
+                rf_prob, xgb_prob = 0, 0
 
-        if row['nameOrig'] not in seen:
-            nodes.append({
-                "id": row['nameOrig'],
-                "label": f"Mule ({row['type']})",
-                "color": "#ef4444",
-                "val": min(int(row['amount'] / 10000) + 8, 40),
-                "rf_prob": rf_prob,
-                "xgb_prob": xgb_prob,
-                "reason": f"RF: {rf_prob}% | XGB: {xgb_prob}% fraud probability"
+            if row['nameOrig'] not in seen:
+                nodes.append({
+                    "id": str(row['nameOrig']),
+                    "label": f"Mule ({row['type']})",
+                    "color": "#ef4444",
+                    "val": min(int(float(row['amount']) / 10000) + 8, 40),
+                    "rf_prob": rf_prob,
+                    "xgb_prob": xgb_prob,
+                    "reason": f"RF: {rf_prob}% | XGB: {xgb_prob}% fraud probability"
+                })
+                seen.add(row['nameOrig'])
+                
+            if row['nameDest'] not in seen:
+                nodes.append({
+                    "id": str(row['nameDest']),
+                    "label": "Destination",
+                    "color": "#f59e0b",
+                    "val": 15,
+                    "rf_prob": 0,
+                    "xgb_prob": 0,
+                    "reason": "Destination account"
+                })
+                seen.add(row['nameDest'])
+                
+            links.append({
+                "source": str(row['nameOrig']),
+                "target": str(row['nameDest']),
+                "label": f"₹{float(row['amount']):,.0f}"
             })
-            seen.add(row['nameOrig'])
-        if row['nameDest'] not in seen:
-            nodes.append({
-                "id": row['nameDest'],
-                "label": "Destination",
-                "color": "#f59e0b",
-                "val": 15,
-                "rf_prob": 0,
-                "xgb_prob": 0,
-                "reason": "Destination account"
-            })
-            seen.add(row['nameDest'])
-        links.append({
-            "source": row['nameOrig'],
-            "target": row['nameDest'],
-            "label": f"₹{row['amount']:,.0f}"
-        })
-    return {"nodes": nodes, "links": links}
+        return {"nodes": nodes, "links": links}
+    except Exception as e:
+        print(f"❌ Clusters Error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @app.get("/api/investigate/{account_id}")
