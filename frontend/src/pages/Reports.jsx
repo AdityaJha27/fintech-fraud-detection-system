@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import Sidebar from '../components/Sidebar';
 import jsPDF from 'jspdf';
+const ML_URL = import.meta.env.VITE_ML_URL || 'http://localhost:8000';
 
 /**
  * Reports — Forensic report generation page
@@ -19,7 +20,7 @@ const Reports = () => {
     setGenerated(null);
 
     try {
-      const clustersRes = await fetch('http://localhost:8000/api/fraud-clusters');
+      const clustersRes = await fetch(`${ML_URL}/api/fraud-clusters`);
       const clustersData = await clustersRes.json();
       const fraudAccounts = clustersData.nodes.filter(n => n.color === '#ef4444');
 
@@ -190,7 +191,7 @@ const Reports = () => {
     setGenerated(null);
 
     try {
-      const statsRes = await fetch('http://localhost:8000/api/stats');
+      const statsRes = await fetch(`${ML_URL}/api/stats`);
       const stats = await statsRes.json();
 
       const doc = new jsPDF();
