@@ -11,8 +11,12 @@ const app = express();
 // Connect MongoDB
 connectDB();
 
-// Middleware
-app.use(cors());
+app.use(cors({
+    origin: "*", // Sabhi origins ko allow karne ke liye
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    allowedHeaders: ["Content-Type", "Authorization"]
+}));
+
 app.use(express.json());
 
 // Routes
