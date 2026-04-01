@@ -1,3 +1,5 @@
+// Get API URL from Environment Variables
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 import { createContext, useState, useEffect, useContext } from 'react';
 
 // Create authentication context for global state management
@@ -16,14 +18,17 @@ export const AuthProvider = ({ children }) => {
   // Validate existing token on initial load
   useEffect(() => {
     if (token) {
-      fetch('http://localhost:5000/auth/me', {
+      fetch(`${API_URL}/auth/me`, {
         headers: { Authorization: `Bearer ${token}` }
       })
-        .then(res => res.json())
+        .then(res => {
+          if (!res.ok) throw new Error('Token invalid'); // Agar 401/500 error aaye
+            return res.json();
+          })
         .then(data => {
-          setUser(data);
+          setUser(data.user || data); // User data set karo
           setLoading(false);
-        })
+          })
         .catch(() => {
           // Clear invalid token from storage
           setToken(null);
@@ -69,3 +74,5 @@ export const AuthProvider = ({ children }) => {
 export const useAuth = () => {
   return useContext(AuthContext);
 };
+
+  

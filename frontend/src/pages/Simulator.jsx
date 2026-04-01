@@ -1,3 +1,4 @@
+const ML_URL = import.meta.env.VITE_ML_URL || 'http://localhost:8000';
 import { useState } from 'react';
 import Sidebar from '../components/Sidebar';
 
@@ -26,7 +27,8 @@ const Simulator = () => {
     setResult(null);
 
     try {
-      const res = await fetch('http://localhost:8000/api/predict', {
+      // ⚡ UPDATE: Template literal (backticks) use kiya deployment ke liye
+      const res = await fetch(`${ML_URL}/api/predict`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -34,14 +36,13 @@ const Simulator = () => {
           amount: parseFloat(formData.amount),
           oldbalanceOrg: parseFloat(formData.oldbalanceOrg) || 0,
           oldbalanceDest: parseFloat(formData.oldbalanceDest) || 0,
-          // step removed — hour uses real current time in backend
         })
       });
 
       const data = await res.json();
       setResult(data);
     } catch (err) {
-      setError('Failed to connect to ML backend. Make sure FastAPI is running on port 8000.');
+      setError(`Failed to connect to ML backend at ${ML_URL}. Make sure FastAPI is running.`);
     } finally {
       setLoading(false);
     }

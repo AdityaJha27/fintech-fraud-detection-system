@@ -1,3 +1,5 @@
+// Global ML URL (For future live metric fetching)
+const ML_URL = import.meta.env.VITE_ML_URL || 'http://localhost:8000';
 import { useState, useEffect } from 'react';
 import Sidebar from '../components/Sidebar';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';

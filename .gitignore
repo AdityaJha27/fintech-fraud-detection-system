@@ -1,5 +1,8 @@
-# Environment Variables — NEVER push
-backend/.env
+# Block ALL .env files anywhere in the project
+.env
+.env.local
+.env.development
+.env.production
 
 # Python cache
 backend/__pycache__/

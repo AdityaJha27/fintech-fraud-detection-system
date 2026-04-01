@@ -1,3 +1,4 @@
+const ML_URL = import.meta.env.VITE_ML_URL || 'http://localhost:8000';
 import { useState, useEffect } from 'react';
 import Sidebar from '../components/Sidebar';
 import {
@@ -18,8 +19,8 @@ const Analytics = () => {
     const fetchAll = async () => {
       try {
         const [analyticsRes, statsRes] = await Promise.all([
-          fetch('http://localhost:8000/api/analytics'),
-          fetch('http://localhost:8000/api/stats'),
+          fetch(`${ML_URL}/api/analytics`),
+          fetch(`${ML_URL}/api/stats`),
         ]);
 
         const analyticsData = await analyticsRes.json();
@@ -35,7 +36,7 @@ const Analytics = () => {
     };
 
     fetchAll();
-  }, []);
+  }, [ML_URL]);
 
   if (loading) {
     return (

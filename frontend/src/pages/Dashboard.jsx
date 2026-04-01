@@ -1,3 +1,4 @@
+const ML_URL = import.meta.env.VITE_ML_URL || 'http://localhost:8000';
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
@@ -30,7 +31,7 @@ const InvestigationModal = ({ accountId, onClose }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch(`http://localhost:8000/api/investigate/${accountId}`)
+    fetch(`${ML_URL}/api/investigate/${accountId}`)
       .then(res => res.json())
       .then(d => { setData(d); setLoading(false); })
       .catch(() => setLoading(false));
@@ -149,23 +150,6 @@ const InvestigationModal = ({ accountId, onClose }) => {
                 <p className="text-sm text-slate-300 italic">"{data.reason}"</p>
               </div>
 
-              {/* Dark Web */}
-              <div className={`p-3 rounded-xl border flex items-center gap-3 ${
-                data.darkweb_correlation?.includes('Found')
-                  ? 'bg-red-500/10 border-red-500/20'
-                  : 'bg-green-500/10 border-green-500/20'
-              }`}>
-                <span className="text-lg">🌐</span>
-                <div>
-                  <p className="text-xs text-slate-500 uppercase font-bold">Dark Web Correlation</p>
-                  <p className={`text-sm font-bold ${
-                    data.darkweb_correlation?.includes('Found') ? 'text-red-400' : 'text-green-400'
-                  }`}>
-                    {data.darkweb_correlation}
-                  </p>
-                </div>
-              </div>
-
             </div>
           )}
         </div>
@@ -209,11 +193,11 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const statsRes = await fetch('http://localhost:8000/api/stats');
+        const statsRes = await fetch(`${ML_URL}/api/stats`);
         const statsData = await statsRes.json();
         setStats(statsData);
 
-        const clustersRes = await fetch('http://localhost:8000/api/fraud-clusters');
+        const clustersRes = await fetch(`${ML_URL}/api/fraud-clusters`);
         const clustersData = await clustersRes.json();
 
         const generatedAlerts = clustersData.nodes
