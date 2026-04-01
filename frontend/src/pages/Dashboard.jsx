@@ -191,16 +191,20 @@ const Dashboard = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
+      const fetchData = async () => {
+     try {
         const statsRes = await fetch(`${ML_URL}/api/stats`);
+        if (!statsRes.ok) throw new Error('Stats API failed'); // Error check
         const statsData = await statsRes.json();
         setStats(statsData);
 
         const clustersRes = await fetch(`${ML_URL}/api/fraud-clusters`);
+        if (!clustersRes.ok) throw new Error('Clusters API failed'); // Error check
         const clustersData = await clustersRes.json();
 
-        const generatedAlerts = clustersData.nodes
+        const nodes = clustersData.nodes || [];
+        
+        const generatedAlerts = nodes
           .filter(n => n.color === '#ef4444')
           .map(n => ({
             id: n.id,
@@ -213,6 +217,7 @@ const Dashboard = () => {
         setLastUpdated(new Date().toLocaleTimeString());
       } catch (err) {
         console.error('Failed to fetch dashboard data:', err);
+        setLoading(false); 
       } finally {
         setLoading(false);
       }
