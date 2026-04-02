@@ -1,75 +1,101 @@
-# FinTech Fraud Detection System
+# 🛡️ FinTech Fraud Detection System
 
-A production-level fraud detection platform built with ensemble ML models, explainable AI, and a full-stack React dashboard.
+### **Enterprise-Grade Anti-Money Laundering (AML) & Fraud Analytics Platform**
 
-![Dashboard Preview](screenshots/dashboard.png)
+A high-performance system trained on **6.3 Million transactions**, featuring a dual-engine backend, explainable AI, and real-time transaction simulation.
 
-## Live Demo
-> Coming soon after deployment
+[![Live Demo](https://img.shields.io/badge/Live-Demo-brightgreen?style=for-the-badge)](https://fintech-fraud-detection-system.vercel.app/)
+[![GitHub Repo](https://img.shields.io/badge/GitHub-Repository-blue?style=for-the-badge)](https://github.com/AdityaJha27/fintech-fraud-detection-system)
 
-## Features
+---
 
-- **Real-Time Fraud Detection** — Analyze any transaction using XGBoost + Random Forest ensemble
-- **SHAP Explainability** — Every prediction explained using real SHAP values
-- **Live Fraud Alerts** — Dashboard refreshes every 10s with real PaySim fraud accounts
-- **Forensic PDF Reports** — Download professional investigation reports
-- **JWT Authentication** — Secure login with bcrypt password hashing
-- **Fraud Analytics** — Real business intelligence from PaySim dataset
+## 📸 Platform Showcase
 
-## Model Performance
+| 🛡️ Security & Authentication | 📊 Real-Time Analytics Dashboard |
+| :---: | :---: |
+| <img src="screenshots/1_landing.png" width="450" alt="Landing Page"> | <img src="screenshots/3_dashboard.png" width="450" alt="Analytics"> |
 
-| Model | F1 Score | ROC-AUC | Recall | False Negatives |
-|-------|----------|---------|--------|-----------------|
-| Random Forest | **0.91** | 0.9993 | **1.00** | 0 |
-| XGBoost | **0.89** | 0.9994 | **1.00** | 0 |
+| 🧪 AI Transaction Simulator | 🚩 Fraud Detection Logic |
+| :---: | :---: |
+| <img src="screenshots/4_simulator.png" width="450" alt="Simulator"> | <img src="screenshots/5_fraud_detected.png" width="450" alt="Fraud Alert"> |
 
-> Recall = 1.00 means **zero fraud cases missed**
+| 📄 Forensic Case Reports | 🔐 Secure User Access |
+| :---: | :---: |
+| <img src="screenshots/6_forensic_reports.png" width="450" alt="Investigation Reports"> | <img src="screenshots/2_auth.png" width="450" alt="Auth Page"> |
 
-## Model Improvements (v2.0)
+---
 
-| Issue | Fix Applied |
-|-------|-------------|
-| Class Imbalance (0.129% fraud) | SMOTE — balanced to 50/50 |
-| Data Leakage | Removed all post-transaction features |
-| Black Box Model | SHAP values for every prediction |
-| Random Split | Stratified split with `stratify=y` |
+## 📝 Overview
 
-## SHAP Feature Importance
+A **production-grade full-stack machine learning platform** designed for real-time financial fraud detection.
+Built on the **PaySim dataset (6.3M+ transactions)**, the system prioritizes **maximum recall (1.00)** to ensure zero fraudulent activity goes undetected.
 
-| Feature | Random Forest | XGBoost |
-|---------|--------------|---------|
-| `is_overdraft` | 24% | **79%** |
-| `amount_to_balance_ratio` | **42%** | 19% |
-| `type` | 13% | ~0% |
+The platform integrates:
 
-## Tech Stack
+* **FastAPI** for high-speed ML inference
+* **Node.js (Express)** for authentication and API handling
+* **React** for an interactive analytics dashboard
 
-**Frontend**
-- React 18 + Vite
-- Tailwind CSS
-- Recharts
-- React Router
+---
 
-**ML Backend**
-- FastAPI (Python)
-- scikit-learn — Random Forest
-- XGBoost
-- SHAP
-- SMOTE (imbalanced-learn)
-- joblib
+## 🛠️ Core Technical Skills Demonstrated
 
-**Auth Backend**
-- Node.js + Express
-- MongoDB Atlas
-- JWT + bcrypt
+### 🤖 Machine Learning & Data Science
 
-**Dataset**
-- [PaySim — Synthetic Financial Dataset](https://www.kaggle.com/datasets/ealaxi/paysim1)
-- 6,362,620 transactions
-- 8,213 confirmed fraud cases
+* **Ensemble Modeling:** Combined **XGBoost + Random Forest** for robust fraud detection
+* **Imbalanced Data Handling:** Solved 0.129% fraud imbalance using **SMOTE**
+* **Explainable AI:** Integrated **SHAP** for transparent model predictions
+* **Feature Engineering:** Designed high-impact features for improved recall
+* **Data Integrity:** Eliminated data leakage for production-level reliability
 
-## Project Structure
-```
+---
+
+### 💻 Full-Stack Engineering
+
+* **Dual Backend Architecture:**
+
+  * FastAPI (ML Inference Engine)
+  * Node.js + Express (Authentication Layer)
+* **Frontend:** React 18 + Vite + Tailwind CSS
+* **Database:** MongoDB Atlas (Auth) + SQL-based storage (logs)
+* **Security:** JWT Authentication + Bcrypt hashing
+
+---
+
+## 🧠 Model Details & Engineering
+
+* **Dataset:** PaySim Synthetic Dataset (6,362,620 transactions)
+* **Challenge:** Extreme class imbalance (**0.129% fraud**)
+
+### ✅ Solution Approach
+
+* **SMOTE:** Balanced the training dataset to eliminate bias toward non-fraud cases
+* **Zero Data Leakage:** Removed future-state features (`newbalanceOrg`, `newbalanceDest`) to ensure real-time decision making
+* **Custom Engineered Features:**
+
+  * `is_overdraft` → Flags high-risk transactions
+  * `amount_to_balance_ratio` → Measures transaction intensity
+  * `hour` → Captures temporal fraud patterns
+
+---
+
+## 📊 Performance Metrics (Ensemble Results)
+
+| Model                | F1-Score |   ROC-AUC  | Recall (Fraud) |
+| :------------------- | :------: | :--------: | :------------: |
+| **Random Forest**    |   0.91   |   0.9993   |    **1.00**    |
+| **XGBoost**          |   0.89   |   0.9994   |    **1.00**    |
+| **Ensemble (Final)** | **0.90** | **0.9995** |    **1.00**    |
+
+> **Why Recall = 1.00?**
+> In FinTech systems, missing even a single fraudulent transaction (**False Negative**) is significantly more costly than a false alarm.
+> The ensemble model is optimized to ensure **zero fraud cases go undetected**.
+
+---
+
+## 🧱 Project Structure
+
+```bash id="k2z8nv"
 fintech_project/
 ├── backend/
 │   ├── ml/
@@ -87,8 +113,10 @@ fintech_project/
 │   │   └── user.js
 │   ├── routes/
 │   │   └── auth.js
-│   ├── main.py          ← FastAPI ML Backend
-│   └── server.js        ← Node.js Auth Backend
+│   ├── main.py
+│   ├── server.js
+│   └── .env
+│
 ├── src/
 │   ├── pages/
 │   │   ├── Landing.jsx
@@ -101,94 +129,112 @@ fintech_project/
 │   │   └── Reports.jsx
 │   ├── components/
 │   │   └── Sidebar.jsx
-│   └── context/
-│       └── AuthContext.jsx
+│   ├── context/
+│   │   └── AuthContext.jsx
+│   └── .env
+│
+├── notebooks/
+│   └── Fintech_Fraud_Detection.ipynb
+│
+├── screenshots/
+├── convert_to_sql.py
+├── .gitignore
 └── README.md
 ```
 
-## Setup & Installation
+---
 
-### Prerequisites
-- Node.js 18+
-- Python 3.10+
-- MongoDB Atlas account
+## 🛠️ Tech Stack
 
-### 1. Clone Repository
-```bash
-git clone https://github.com/YOUR_USERNAME/fintech-fraud-detection.git
-cd fintech-fraud-detection
+### Frontend
+
+* React 18 (Vite)
+* Tailwind CSS
+* Recharts
+
+### Backend
+
+* FastAPI (Python)
+* Node.js (Express)
+
+### Machine Learning
+
+* Scikit-learn
+* XGBoost
+* SHAP
+* SMOTE
+
+### Database
+
+* MongoDB Atlas
+* SQLite / SQL
+
+### Deployment
+
+* Vercel
+* Render
+
+---
+
+## ⚙️ Setup & Installation
+
+```bash id="4z9l3c"
+git clone https://github.com/AdityaJha27/fintech-fraud-detection-system.git
+cd fintech-fraud-detection-system
 ```
 
-### 2. Frontend Setup
-```bash
-npm install
-```
+### Backend
 
-### 3. Backend Setup
-```bash
+```bash id="x5tqk8"
 cd backend
-pip install fastapi uvicorn pandas scikit-learn xgboost joblib imbalanced-learn shap
-npm install express mongoose bcryptjs jsonwebtoken cors dotenv
-```
-
-### 4. Environment Variables
-Create `backend/.env`:
-```
-MONGODB_URI=your_mongodb_connection_string
-JWT_SECRET=your_jwt_secret
-PORT=5000
-ML_API_URL=http://127.0.0.1:8000
-```
-
-### 5. Dataset
-Download [PaySim dataset](https://www.kaggle.com/datasets/ealaxi/paysim1) and place `paysim_data.csv` in `backend/`
-
-### 6. Run the Project
-
-**Terminal 1 — FastAPI ML Backend:**
-```bash
-cd backend
+pip install -r requirements.txt
 python main.py
 ```
 
-**Terminal 2 — Node.js Auth Backend:**
-```bash
+### Auth Server
+
+```bash id="hf1z9w"
 cd backend
 node server.js
 ```
 
-**Terminal 3 — React Frontend:**
-```bash
+### Frontend
+
+```bash id="m1c8yr"
+cd frontend
+npm install
 npm run dev
 ```
 
-Open `http://localhost:5173`
+---
 
-## API Endpoints
+## 🔐 Environment Variables
 
-### ML Backend (Port 8000)
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/api/predict` | POST | Predict fraud for a transaction |
-| `/api/stats` | GET | Dataset and model statistics |
-| `/api/fraud-clusters` | GET | Live fraud accounts sample |
-| `/api/investigate/{id}` | GET | Deep dive into an account |
-| `/api/analytics` | GET | Real PaySim business analytics |
-| `/api/model-performance` | GET | Detailed model metrics |
+### 📂 Backend (`/backend/.env`)
 
-### Auth Backend (Port 5000)
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/auth/register` | POST | Register new analyst |
-| `/auth/login` | POST | Login and get JWT token |
-| `/auth/me` | GET | Get current user |
+To run this project locally, you must create `.env` files in both the frontend and backend directories. Use the following templates:
 
-## Author
+```env
+MONGO_URI=your_mongodb_atlas_uri_here
+JWT_SECRET=your_jwt_secret_key
+PORT=5000
+ML_API_URL=http://127.0.0.1:8000
+
+```
+
+### 📂 Frontend (/frontend/.env)
+
+```env
+VITE_ML_URL=http://127.0.0.1:8000
+VITE_AUTH_URL=http://localhost:5000
+
+```
+
+---
+
+## 👨‍💻 Author
 
 **Aditya Kumar Jha**
-- 1st Year CS Student — Ramanujan College
-- LinkedIn: [your-linkedin]
-- GitHub: [your-github]
+B.Sc Computer Science — Ramanujan College
 
-## License
-MIT
+---
