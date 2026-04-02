@@ -5,6 +5,7 @@ import os
 import pandas as pd  
 from datetime import datetime
 
+# Load models (Ye part same rahega)
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 rf_model  = joblib.load(os.path.join(BASE_DIR, 'fintech_rf_model.pkl'))
@@ -18,40 +19,35 @@ with open(os.path.join(BASE_DIR, 'fintech_features.json'), 'r') as f:
 def predict_transaction(data_input: dict) -> dict:
     processed_data = data_input.copy()
     
-    # 1. Label Encoding
-    processed_data['type'] = int(le.transform([str(processed_data['type'])])[0])
+    # ⚡ Step 1: Label Encoding
+    processed_data['type'] = int(le.transform([processed_data['type']])[0])
 
-    # 2. Key Values
-    amount = float(processed_data.get('amount', 0))
-    old_orig = float(processed_data.get('oldbalanceOrg', 0))
-    old_dest = float(processed_data.get('oldbalanceDest', 0)) 
-
-    # 3. Feature Engineering (Training logic matching)
+    # ⚡ Step 2: Feature Engineering
     processed_data['hour'] = datetime.now().hour 
-    processed_data['amount_to_balance_ratio'] = amount / (old_orig + 1)
-    processed_data['is_overdraft'] = 1 if amount > old_orig else 0
-    processed_data['oldbalanceDest'] = old_dest 
+    processed_data['amount_to_balance_ratio'] = processed_data['amount'] / (processed_data['oldbalanceOrg'] + 1)
+    processed_data['is_overdraft'] = 1 if processed_data['amount'] > processed_data['oldbalanceOrg'] else 0
 
-    # 4. Final Row Preparation (Strict Order)
+    # ⚡ Step 3: Prepare DataFrame
+    
     try:
         row_values = [processed_data[f] for f in FEATURES]
         row_df = pd.DataFrame([row_values], columns=FEATURES) 
     except KeyError as e:
-        raise ValueError(f"Missing feature: {e}. Check if frontend sends all fields.")
+        print(f"Missing feature in data: {e}")
+        raise ValueError(f"Feature mismatch: {e} is required by the model.")
 
-    # 5. Scale & Predict
+    # ⚡ Step 4: Scale features (Using DataFrame)
     row_scaled = scaler.transform(row_df) 
-    
-    # Probabilities
+
+    # ⚡ Step 5: Generate Predictions & Probabilities
     rf_prob  = float(rf_model.predict_proba(row_scaled)[0][1])
     xgb_prob = float(xgb_model.predict_proba(row_scaled)[0][1])
     ensemble_prob = (rf_prob + xgb_prob) / 2
 
-    # Predictions (0 or 1)
     rf_pred  = int(rf_model.predict(row_scaled)[0])
     xgb_pred = int(xgb_model.predict(row_scaled)[0])
 
-    #  Step 6: Ensemble Decision Logic
+    # ⚡ Step 6: Ensemble Decision Logic
     if rf_pred == 1 and xgb_pred == 1:
         decision, risk_level = "CONFIRMED_FRAUD", "CRITICAL"
     elif rf_pred == 0 and xgb_pred == 0:
