@@ -12,7 +12,7 @@ const app = express();
 connectDB();
 
 app.use(cors({
-    origin: "*", // Sabhi origins ko allow karne ke liye
+    origin: "*", // Allow all origins
     methods: ["GET", "POST", "PUT", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"]
 }));

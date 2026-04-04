@@ -27,7 +27,7 @@ const Simulator = () => {
     setResult(null);
 
     try {
-      // ⚡ UPDATE: Template literal (backticks) use kiya deployment ke liye
+      // ⚡ UPDATE: Used template literals (backticks) for deployment
       const res = await fetch(`${ML_URL}/api/predict`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

@@ -5,7 +5,7 @@ import os
 import pandas as pd  
 from datetime import datetime
 
-# Load models (Ye part same rahega)
+# Load models 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 rf_model  = joblib.load(os.path.join(BASE_DIR, 'fintech_rf_model.pkl'))
