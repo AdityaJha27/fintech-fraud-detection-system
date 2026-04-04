@@ -22,11 +22,11 @@ export const AuthProvider = ({ children }) => {
         headers: { Authorization: `Bearer ${token}` }
       })
         .then(res => {
-          if (!res.ok) throw new Error('Token invalid'); // Agar 401/500 error aaye
+          if (!res.ok) throw new Error('Token invalid'); // If a 401/500 error occurs
             return res.json();
           })
         .then(data => {
-          setUser(data.user || data); // User data set karo
+          setUser(data.user || data); // Set user data
           setLoading(false);
           })
         .catch(() => {

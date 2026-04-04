@@ -21,7 +21,7 @@ def create_sqlite_db():
     conn.execute("PRAGMA temp_store = MEMORY;")
     conn.execute("PRAGMA cache_size = 100000;")
 
-    # Sirf zaruri columns — no leakage, no heavy IDs
+    # Selecting essential features - excluding data leakage and unique identifiers
     conn.execute("""
         CREATE TABLE IF NOT EXISTS transactions (
             step        INTEGER,
@@ -38,7 +38,7 @@ def create_sqlite_db():
     processed_rows = 0
     chunk_size = 100000
 
-    # Sirf zaruri columns load karo
+    # Load only required columns
     usecols = [
         'step', 'type', 'amount',
         'nameOrig', 'nameDest',

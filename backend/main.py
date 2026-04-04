@@ -110,7 +110,7 @@ async def get_clusters():
 
         nodes, links, seen = [], [], set()
         for _, row in sample_fraud.iterrows():
-            # Data ko safely float mein convert kar rahe hain
+            # Converting data safely to float
             data = {
                 "type": str(row['type']),
                 "amount": float(row['amount']),
@@ -156,7 +156,7 @@ async def get_clusters():
             })
         return {"nodes": nodes, "links": links}
     except Exception as e:
-        print(f"❌ Clusters Error: {e}")
+        print(f"Clusters Error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 
